@@ -18,12 +18,12 @@ headers = {
 encryptedSummonerId = ''
 riotapiKey = str(os.environ.get('apiToken'))
 
-TOKEN = str(os.environ.get('discordToken'))
+riotapiKey = str(os.environ.get('apiToken'))
 bot = commands.Bot(command_prefix='~', case_insensitive=True)
 
 
 egirlChamps = ['350', '16', '37', '147', '267', '25', '99', '117', '43', '40']
-freeChamps = []
+
 champInfo = ''
 myarray = []
 newString = ''
@@ -138,6 +138,7 @@ async def egirl(ctx, *args):
 
 @bot.command(name='rotation', help='Retrieve current free weekly league of legends champs')
 async def search(ctx):
+    freeChamps = []
     myDict = {}
     with open('champion.json', 'r', encoding="utf8") as fp:
         data = json.load(fp)
