@@ -18,7 +18,7 @@ headers = {
 encryptedSummonerId = ''
 riotapiKey = str(os.environ.get('apiToken'))
 
-riotapiKey = str(os.environ.get('apiToken'))
+TOKEN = str(os.environ.get('discordToken'))
 bot = commands.Bot(command_prefix='~', case_insensitive=True)
 
 
