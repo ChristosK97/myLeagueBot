@@ -160,4 +160,55 @@ async def search(ctx):
     formattedFreeChamps = ", ".join(freeChamps)
     await ctx.channel.send("The current free champs are: \n " + formattedFreeChamps)
 
+@bot.command(name='event', help='Responds with the next Ufc event')
+async def next_event(ctx):
+    currentEvent = ''
+    url = 'http://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard'
+    r = requests.get(url)
+    jsonLoad = json.loads(r.text)
+    for event in jsonLoad['events']:
+        currentEvent = event['name']
+    await ctx.send(currentEvent)
+
+@bot.command(name='card', help='Responds with the main card of the next ufc event')
+async def main_card(ctx):
+    fightersList = []
+    eventLineup = []
+    champList = []
+    url = 'http://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard'
+    champsUrl = 'http://site.api.espn.com/apis/site/v2/sports/mma/ufc/rankings'
+    r = requests.get(champsUrl)
+    jsonLoad = json.loads(r.text)
+    for whatever in jsonLoad['rankings']:
+        if 'champion' in whatever['type']:
+            champList.append(whatever['ranks'][0]['athlete']['displayName'])
+
+    r = requests.get(url)
+    jsonLoad = json.loads(r.text)
+    for event in jsonLoad['events']:
+        currentEvent = event['name']
+
+    for competitions in jsonLoad['events'][0]['competitions']:
+        # print(competitions['competitors'][0]['athlete']['fullName'])
+        # print(competitions['competitors'][1]['athlete']['fullName'])
+        if competitions['competitors'][0]['athlete']['fullName'] in champList and competitions['competitors'][1]['athlete']['fullName'] in champList:
+            fightersList.append("(C) " + competitions['competitors'][0]['athlete']['fullName'] + ' vs ' + "(C) " + competitions['competitors'][1]['athlete']['fullName'])
+
+        elif competitions['competitors'][0]['athlete']['fullName'] in champList:
+            fightersList.append("(C) " + competitions['competitors'][0]['athlete']['fullName'] + ' vs ' + competitions['competitors'][1]['athlete']['fullName'])
+        elif competitions['competitors'][1]['athlete']['fullName'] in champList:
+            fightersList.append(competitions['competitors'][0]['athlete']['fullName'] + ' vs ' + "(C) " + competitions['competitors'][1]['athlete']['fullName'])
+        else:
+            fightersList.append(competitions['competitors'][0]['athlete']['fullName'] + ' vs ' + competitions['competitors'][1]['athlete']['fullName'])
+
+    for matchups in reversed(fightersList[-5:]):
+        eventLineup.append(matchups)
+
+    await ctx.send(currentEvent)
+    await ctx.send('\n'.join(eventLineup))
+
+@bot.command(name='stream', help='Returns links to watch sports')
+async def stream_link(ctx):
+    await ctx.send('https://sportsurge.net/\n http://crackstreams.biz/\n https://www.streameast.live/')
+
 bot.run(TOKEN)
