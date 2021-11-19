@@ -6,9 +6,17 @@ from discord.ext import commands
 import discord
 import json
 import os
+import mysql.connector
 
-status = 'MAXIMUM BRIM'
-status1 = 'dance dance brimolution'
+cnx = mysql.connector.connect(
+    user= str(os.environ.get('herokuDbUser')),
+    password= str(os.environ.get('herokuDbPw')),
+    host= str(os.environ.get('herokuDbHost')),
+    database= str(os.environ.get('herokuDb'))
+
+)
+
+status = 'dance dance brimolution'
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36",
     "Accept-Language": "en-US,en;q=0.9",
@@ -28,20 +36,11 @@ champInfo = ''
 myarray = []
 newString = ''
 
-
-
-
- # create md5 hash
- #require link and the secret key brim
- #when the discord bot gets the request, it'll take the keyword and then create the link, then create the hash
-
-# since the bot will reply to my message, most likely it will need to use message.channel.send
-
 client = discord.Client()
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game(status1))
+    await bot.change_presence(activity=discord.Game(status))
 
 
 
@@ -66,10 +65,8 @@ async def search(ctx, *args):
 
 @bot.command(name='egirl', help='use command following league summer name to check for egirl')
 async def egirl(ctx, *args):
-    print("hello")
     counter = 0
     summonerName = ' '.join(args)
-    print(summonerName)
     myDict = {}
     summonersTopFive = []
     with open('champion.json', 'r', encoding="utf8") as fp:
@@ -131,7 +128,32 @@ async def egirl(ctx, *args):
                     summonersTopFive[3][1] + " " + summonersTopFive[3][2] + '\n' + summonersTopFive[4][1] + " " + \
                     summonersTopFive[4][2]
         finalMessage = outputMsg + '\n' + champInfo
-        await ctx.channel.send(finalMessage)
+
+        myCursor = cnx.cursor()
+        val = (summonerName,)
+        checkIfSummonerExists = ("SELECT * FROM discorddata WHERE summonerId = %s")
+        myCursor.execute(checkIfSummonerExists, val)
+        myResult = myCursor.fetchone()
+
+        if myResult:
+            newOdds = '{}/{}'.format(counter, 5)  # when bot declares the variable, pass it here
+            recurrence = myResult[3]
+            databaseMessage = (summonerName, 'IS A REPEAT OFFENDER. COUNT = ', recurrence)
+            sqlQuery = ("UPDATE discorddata SET recurrence = %s, odds = %s WHERE summonerId = %s")
+            val = ((recurrence + 1), newOdds, myResult[1],)
+            myCursor.execute(sqlQuery, val)
+            cnx.commit()
+            print(myCursor.rowcount, "record(s) affected")
+        else:
+            newOdds = '{}/{}'.format(counter, 5)
+            databaseMessage = (summonerName, 'Is a first time offender.')
+            sqlQuery = "INSERT INTO discorddata (summonerId, odds, recurrence) VALUES (%s, %s, %s)"
+            val = (summonerName, newOdds, 1)  # all variables here
+            myCursor.execute(sqlQuery, val)
+            cnx.commit()
+            print(myCursor.rowcount, "record(s) affected")
+
+        await ctx.channel.send(databaseMessage + '\n' + finalMessage)
     else:
         await ctx.channel.send("Invalid summoner name. check yo spelling dawg")
 
