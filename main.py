@@ -139,7 +139,7 @@ async def egirl(ctx, *args):
         if myResult:
             newOdds = '{}/{}'.format(counter, 5)  # when bot declares the variable, pass it here
             recurrence = myResult[3]
-            databaseMessage = summonerName + 'IS A REPEAT OFFENDER. Count = {}'.format(recurrence)
+            databaseMessage = summonerName + ' ' + 'is a REPEAT OFFENDER. Count = {}'.format(recurrence)
             sqlQuery = ("UPDATE discorddata SET recurrence = %s, odds = %s WHERE summonerId = %s")
             val = ((recurrence + 1), newOdds, myResult[1],)
             myCursor.execute(sqlQuery, val)
@@ -148,7 +148,7 @@ async def egirl(ctx, *args):
             print(myCursor.rowcount, "record(s) affected")
         else:
             newOdds = '{}/{}'.format(counter, 5)
-            databaseMessage = summonerName + 'Is a first time offender.'
+            databaseMessage = summonerName + ' ' + 'Is a first time offender.'
             sqlQuery = "INSERT INTO discorddata (summonerId, odds, recurrence) VALUES (%s, %s, %s)"
             val = (summonerName, newOdds, 1)  # all variables here
             myCursor.execute(sqlQuery, val)
