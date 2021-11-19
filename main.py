@@ -8,14 +8,6 @@ import json
 import os
 import mysql.connector
 
-cnx = mysql.connector.connect(
-    user= str(os.environ.get('herokuDbUser')),
-    password= str(os.environ.get('herokuDbPw')),
-    host= str(os.environ.get('herokuDbHost')),
-    database= str(os.environ.get('herokuDb'))
-
-)
-
 status = 'dance dance brimolution'
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36",
@@ -129,6 +121,13 @@ async def egirl(ctx, *args):
                     summonersTopFive[4][2]
         finalMessage = outputMsg + '\n' + champInfo
 
+        cnx = mysql.connector.connect(
+            user=str(os.environ.get('herokuDbUser')),
+            password=str(os.environ.get('herokuDbPw')),
+            host=str(os.environ.get('herokuDbHost')),
+            database=str(os.environ.get('herokuDb'))
+
+        )
 
         myCursor = cnx.cursor()
         cnx.reconnect(attempts=1, delay=0)
@@ -140,7 +139,7 @@ async def egirl(ctx, *args):
         if myResult:
             newOdds = '{}/{}'.format(counter, 5)  # when bot declares the variable, pass it here
             recurrence = myResult[3]
-            databaseMessage = summonerName, 'IS A REPEAT OFFENDER. Count = {}'.format(recurrence)
+            databaseMessage = summonerName + 'IS A REPEAT OFFENDER. Count = {}'.format(recurrence)
             sqlQuery = ("UPDATE discorddata SET recurrence = %s, odds = %s WHERE summonerId = %s")
             val = ((recurrence + 1), newOdds, myResult[1],)
             myCursor.execute(sqlQuery, val)
@@ -149,7 +148,7 @@ async def egirl(ctx, *args):
             print(myCursor.rowcount, "record(s) affected")
         else:
             newOdds = '{}/{}'.format(counter, 5)
-            databaseMessage = summonerName, 'Is a first time offender.'
+            databaseMessage = summonerName + 'Is a first time offender.'
             sqlQuery = "INSERT INTO discorddata (summonerId, odds, recurrence) VALUES (%s, %s, %s)"
             val = (summonerName, newOdds, 1)  # all variables here
             myCursor.execute(sqlQuery, val)
