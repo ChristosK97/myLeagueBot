@@ -129,8 +129,9 @@ async def egirl(ctx, *args):
                     summonersTopFive[4][2]
         finalMessage = outputMsg + '\n' + champInfo
 
-        cnx.reconnect(attempts=1, delay=0)
+
         myCursor = cnx.cursor()
+        cnx.reconnect(attempts=1, delay=0)
         val = (summonerName,)
         checkIfSummonerExists = ("SELECT * FROM discorddata WHERE summonerId = %s")
         myCursor.execute(checkIfSummonerExists, val)
