@@ -153,7 +153,8 @@ async def egirl(ctx, *args):
             cnx.commit()
             print(myCursor.rowcount, "record(s) affected")
 
-        await ctx.channel.send(databaseMessage + '\n' + finalMessage)
+        await ctx.channel.send(databaseMessage)
+        await ctx.channel.send(finalMessage)
     else:
         await ctx.channel.send("Invalid summoner name. check yo spelling dawg")
 
