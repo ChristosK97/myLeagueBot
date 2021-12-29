@@ -115,10 +115,10 @@ async def egirl(ctx, *args):
         else:
             outputMsg = "0% chance of E-girl. Chad confirmed. 0/5"
 
-        champInfo = summonersTopFive[0][1] + " " + summonersTopFive[0][2] + '\n' + summonersTopFive[1][1] + " " + \
-                    summonersTopFive[1][2] + '\n' + summonersTopFive[2][1] + " " + summonersTopFive[2][2] + '\n' + \
-                    summonersTopFive[3][1] + " " + summonersTopFive[3][2] + '\n' + summonersTopFive[4][1] + " " + \
-                    summonersTopFive[4][2]
+        champInfo = summonersTopFive[0][1] + " " + "{:,}".format(int(summonersTopFive[0][2])) + '\n' + summonersTopFive[1][1] + " " + \
+                    "{:,}".format(int(summonersTopFive[1][2])) + '\n' + summonersTopFive[2][1] + " " + "{:,}".format(int(summonersTopFive[2][2])) + '\n' + \
+                    summonersTopFive[3][1] + " " + "{:,}".format(int(summonersTopFive[3][2])) + '\n' + summonersTopFive[4][1] + " " + \
+                    "{:,}".format(int(summonersTopFive[4][2]))
         finalMessage = outputMsg + '\n' + champInfo
 
         cnx = mysql.connector.connect(
